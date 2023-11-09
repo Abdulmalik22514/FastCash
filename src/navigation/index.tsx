@@ -1,7 +1,6 @@
 import * as React from 'react';
 import 'react-native-gesture-handler';
 import {RootStackParamList} from '../types/types';
-import Onboarding from '../screens/Onboarding';
 import SignUp from '../screens/SignUp';
 import {
   createNativeStackNavigator,
@@ -17,8 +16,7 @@ const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 const MainNavigator = () => {
   return (
-    <RootStack.Navigator initialRouteName="Register" screenOptions={options}>
-      <RootStack.Screen name="Onboarding" component={Onboarding} />
+    <RootStack.Navigator initialRouteName="SignUp" screenOptions={options}>
       <RootStack.Screen name="SignUp" component={SignUp} />
       <RootStack.Screen name="Register" component={Register} />
     </RootStack.Navigator>
