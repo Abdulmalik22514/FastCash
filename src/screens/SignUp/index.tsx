@@ -37,8 +37,8 @@ const SignUp = () => {
           <Container style={styles.container}>
             <View>
               <HeadingText
-                heading="Create an account"
-                subHeading="Start building your dollar-denominated investment portfolio"
+                heading="Login"
+                subHeading="Welcome to FastMoni, enjoy seamless transaction on our platform."
               />
               <CustomInput
                 label="Email address"
@@ -46,7 +46,7 @@ const SignUp = () => {
                 placeholder="Email address"
                 onChangeText={handleChange('email')}
                 onFocus={() => setFieldTouched('email')}
-                // onBlur={handleBlur('email')}
+                onBlur={handleBlur('email')}
                 error={touched.email && errors.email ? errors.email : undefined}
               />
               <View>
@@ -77,7 +77,7 @@ const SignUp = () => {
                 </>
               </View>
               <CustomButton
-                title="Sign Up"
+                title="Login"
                 disabled={
                   !values.email ||
                   !values.password ||

@@ -5,7 +5,7 @@ import {hp} from '@/constants/utils';
 
 interface HeadingTextProps {
   heading: string;
-  subHeading: string;
+  subHeading?: string;
 }
 
 const HeadingText = (props: HeadingTextProps) => {
