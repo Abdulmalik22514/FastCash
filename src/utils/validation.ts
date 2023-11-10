@@ -38,7 +38,7 @@ export const SignupFormValidationSchema = Yup.object().shape({
     .email('Please enter a valid email format.'),
   password: Yup.string()
     .trim()
-    .min(8, 'length-error')
+    .min(8, 'must be more than 8 characters')
     .required('Password is required')
     .matches(/[A-Z]/, 'Password must contain uppercase letter')
     .matches(specialCharRe, 'Password must contain special characters'),
