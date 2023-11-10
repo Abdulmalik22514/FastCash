@@ -3,32 +3,35 @@ import axios from 'axios';
 
 interface InitialStateProps {
   loading: boolean;
-  news: any;
+  user: any;
   error: string;
 }
 
-interface LoginStateProps {
+export interface LoginStateProps {
   email: string;
   password: string;
 }
 
 const initialState = {
   loading: false,
-  news: [],
+  user: [],
   error: '',
 } as InitialStateProps;
 
-export const LOGIN = createAsyncThunk(
+export const SIGN_UP = createAsyncThunk(
   'api/login',
-  async ({email, password}: LoginStateProps) => {
+  async ({email, password}: LoginStateProps): Promise<unknown> => {
     try {
-      const res = await axios.post('https://reqres.in/api/login', {
+      const res = await axios.post('https://reqres.in/api/register', {
         email,
         password,
       });
+      console.log(res, 'ffff');
+
       return res.data;
     } catch (err) {
-      return console.log(err);
+      console.log(err?.response?.data, 'dddd');
+      return err?.response?.data;
     }
   },
 );
@@ -38,18 +41,22 @@ export const AuthSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: builder => {
-    builder.addCase(LOGIN.pending, state => {
+    builder.addCase(SIGN_UP.pending, state => {
       state.loading = true;
     });
-    builder.addCase(LOGIN.fulfilled, (state, action) => {
+    builder.addCase(SIGN_UP.fulfilled, (state, action) => {
+      console.log(action.payload, 'ff');
+
       state.loading = false;
-      state.news = action.payload;
+      state.user = action.payload;
       state.error = '';
     });
-    builder.addCase(LOGIN.rejected, (state, action) => {
+    builder.addCase(SIGN_UP.rejected, (state, action) => {
+      console.log(action.error.message, 'ggg');
+
       state.loading = false;
-      state.news = [];
-      state.error = action.error.message || 'something happend';
+      state.user = [];
+      state.error = action.error.message || 'something happened';
     });
   },
 });
