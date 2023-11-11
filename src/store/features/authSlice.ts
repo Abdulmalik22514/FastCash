@@ -1,10 +1,17 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import {PayloadAction, createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import axios from 'axios';
 
+export interface UserProps {
+  name: string;
+  job: string;
+  id: string;
+  createdAt: string;
+}
 interface InitialStateProps {
   loading: boolean;
-  user: any;
+  token: any;
   error: string;
+  user: any;
 }
 
 export interface LoginStateProps {
@@ -12,25 +19,45 @@ export interface LoginStateProps {
   password: string;
 }
 
+export interface CreateUserProps {
+  name: string;
+  job: string;
+}
+
 const initialState = {
   loading: false,
-  user: [],
+  token: {},
   error: '',
+  user: {},
 } as InitialStateProps;
 
-export const SIGN_UP = createAsyncThunk(
+export const LOGIN = createAsyncThunk(
   'api/login',
   async ({email, password}: LoginStateProps): Promise<unknown> => {
     try {
-      const res = await axios.post('https://reqres.in/api/register', {
+      const res = await axios.post('https://reqres.in/api/login', {
         email,
         password,
       });
-      console.log(res, 'ffff');
+      return res.data;
+    } catch (err: any) {
+      return err?.response?.data;
+    }
+  },
+);
+
+export const CREATE_USER = createAsyncThunk(
+  'api/create',
+  async ({name, job}: CreateUserProps): Promise<unknown> => {
+    try {
+      const res = await axios.post('https://reqres.in/api/users', {
+        name,
+        job,
+      });
+      console.log(res?.data, 'ffff');
 
       return res.data;
-    } catch (err) {
-      console.log(err?.response?.data, 'dddd');
+    } catch (err: any) {
       return err?.response?.data;
     }
   },
@@ -41,21 +68,32 @@ export const AuthSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: builder => {
-    builder.addCase(SIGN_UP.pending, state => {
+    //------------------------- LOGIN CASE -----------------------------
+    builder.addCase(LOGIN.pending, state => {
       state.loading = true;
     });
-    builder.addCase(SIGN_UP.fulfilled, (state, action) => {
-      console.log(action.payload, 'ff');
-
+    builder.addCase(LOGIN.fulfilled, (state, action) => {
+      state.loading = false;
+      state.token = action.payload;
+      state.error = '';
+    });
+    builder.addCase(LOGIN.rejected, (state, action) => {
+      state.loading = false;
+      state.token = {};
+      state.error = action.error.message || 'something happened';
+    });
+    //------------------------- CREATE_USER CASE -----------------------------
+    builder.addCase(CREATE_USER.pending, state => {
+      state.loading = true;
+    });
+    builder.addCase(CREATE_USER.fulfilled, (state, action) => {
       state.loading = false;
       state.user = action.payload;
       state.error = '';
     });
-    builder.addCase(SIGN_UP.rejected, (state, action) => {
-      console.log(action.error.message, 'ggg');
-
+    builder.addCase(CREATE_USER.rejected, (state, action) => {
       state.loading = false;
-      state.user = [];
+      state.user = {};
       state.error = action.error.message || 'something happened';
     });
   },
