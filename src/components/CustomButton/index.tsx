@@ -6,6 +6,7 @@ import {
   ViewStyle,
   TextStyle,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import {COLORS} from '../../constants/colors';
 import {hp, wp} from '../../constants/utils';
@@ -16,7 +17,7 @@ type ButtonPropsType = {
   style?: StyleProp<ViewStyle>;
   styleText?: StyleProp<TextStyle>;
   disabled?: boolean;
-  // isSignUp?: boolean;
+  loading?: boolean;
 };
 
 export const CustomButton: FC<ButtonPropsType> = ({
@@ -25,7 +26,7 @@ export const CustomButton: FC<ButtonPropsType> = ({
   style,
   styleText,
   disabled,
-  // isSignUp,
+  loading,
 }) => {
   return (
     <TouchableOpacity
@@ -33,10 +34,18 @@ export const CustomButton: FC<ButtonPropsType> = ({
       onPress={onPressButton}
       disabled={disabled}
       style={[styles.buttonStyle, disabled && styles.isSignIn, style]}>
-      <Text
-        style={[styles.buttonTitle, disabled && styles.signInText, styleText]}>
-        {title}
-      </Text>
+      {loading ? (
+        <ActivityIndicator size={15} color={'white'} />
+      ) : (
+        <Text
+          style={[
+            styles.buttonTitle,
+            disabled && styles.signInText,
+            styleText,
+          ]}>
+          {title}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };
