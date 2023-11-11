@@ -1,59 +1,46 @@
-import {StyleSheet, View, Text} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import React, {useState} from 'react';
 import {hp, wp} from '@/constants/utils';
 import {COLORS} from '@/constants/colors';
 import Container from '@/components/Container';
 import CustomInput from '@/components/CustomInput';
 import {Formik, FormikValues} from 'formik';
-import {SignupFormValidationSchema, specialCharRe} from '@/utils/validation';
-import PasswordValidatorIndicator from '@/components/PasswordValidatorIndicator/PasswordValidatorIndicator';
 import {CustomButton} from '@/components/CustomButton';
 import useNavigation from '@/hooks/useNavigation';
 import HeadingText from '@/components/HeadingText';
-import {useAppDispatch, useAppSelector} from '@/hooks/useStore';
-import {LOGIN, LoginStateProps, SIGN_UP} from '@/store/features/authSlice';
+import {useAppDispatch} from '@/hooks/useStore';
+import {LOGIN} from '@/store/features/authSlice';
 
 const initialValues = {
-  email: '',
-  password: '',
+  email: 'eve.holt@reqres.in',
+  password: 'cityslicka%',
 };
 
 const Login = () => {
   const navigation = useNavigation();
   const [errorMsg, setErrorMsg] = useState('');
-  const {user, error, loading} = useAppSelector(state => state.authReducer);
-
-  // console.log({user: 'user', error: 'error', loading: 'load'});
-
-  console.log(error, 'sss');
 
   const dispatch = useAppDispatch();
 
-  // useEffect(() => {
-  //   if (user) {
-
-  //   }
-  // }, []);
-
   const handleLogin = async ({email, password}: FormikValues) => {
-    console.log('im here');
     try {
-      const {payload} = await dispatch(SIGN_UP({email, password}));
-      if (!payload) {
-        return setErrorMsg('Only defined users succeed registration');
+      const {payload} = await dispatch(LOGIN({email, password}));
+      if (payload?.token) {
+        return navigation.navigate('Register');
+      } else {
+        return setErrorMsg(payload?.error);
       }
     } catch (error) {
       console.error('Signup failed:', error);
     }
   };
 
-  console.log(errorMsg, 'rrr');
-
   return (
     <Formik
+      enableReinitialize
       initialValues={initialValues}
-      validationSchema={SignupFormValidationSchema}
-      onSubmit={() => navigation.navigate('Register')}>
+      // validationSchema={SignupFormValidationSchema}
+      onSubmit={handleLogin}>
       {({
         handleChange,
         errors,
@@ -62,8 +49,8 @@ const Login = () => {
         handleBlur,
         setFieldTouched,
         handleSubmit,
+        isSubmitting,
       }) => {
-        console.log({errors});
         return (
           <Container style={styles.container}>
             <View>
@@ -80,6 +67,7 @@ const Login = () => {
                 onBlur={handleBlur('email')}
                 error={touched.email && errors.email ? errors.email : undefined}
               />
+              {errorMsg && <Text style={{color: 'red'}}>{errorMsg}</Text>}
               <View>
                 <CustomInput
                   label="Password"
@@ -122,6 +110,7 @@ const Login = () => {
                 }
                 onPressButton={handleSubmit}
                 style={{marginTop: hp(50)}}
+                loading={isSubmitting}
               />
             </View>
           </Container>
