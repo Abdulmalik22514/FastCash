@@ -5,16 +5,18 @@ import {PaperProvider} from 'react-native-paper';
 import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
 import {persistor, store} from '@/store/store';
-// import {persistor, store} from '@/store/store';
+import {HomeProvider} from '@/context/HomeContext';
 
 function App(): JSX.Element {
   return (
     <PaperProvider>
       <Provider store={store}>
         <PersistGate persistor={persistor}>
-          <NavigationContainer>
-            <MainNavigator />
-          </NavigationContainer>
+          <HomeProvider>
+            <NavigationContainer>
+              <MainNavigator />
+            </NavigationContainer>
+          </HomeProvider>
         </PersistGate>
       </Provider>
     </PaperProvider>

@@ -20,6 +20,7 @@ module.exports = {
           '@/navigation': './src/navigation',
           '@/constants': './src/constants',
           '@/store': './src/store',
+          '@/context': './src/context',
         },
       },
     ],
