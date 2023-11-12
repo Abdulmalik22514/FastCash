@@ -1,96 +1,106 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import {Pressable, StyleSheet, Text, View, TextInput} from 'react-native';
-import React from 'react';
-import Container from '@/components/Container';
+import {StyleSheet, Text, View} from 'react-native';
+import React, {useState} from 'react';
 import {hp, wp} from '@/constants/utils';
-import HeadingText from '@/components/HeadingText';
-import CustomInput from '@/components/CustomInput';
-import {Formik} from 'formik';
-import {ArrowDown, CalenderIcon, FlagIcon} from '@/assets/svgs/svg';
 import {COLORS} from '@/constants/colors';
+import Container from '@/components/Container';
+import CustomInput from '@/components/CustomInput';
+import {Formik, FormikValues} from 'formik';
 import {CustomButton} from '@/components/CustomButton';
-// import {TextInput} from 'react-native-paper';
+import useNavigation from '@/hooks/useNavigation';
+import HeadingText from '@/components/HeadingText';
+import {useAppDispatch} from '@/hooks/useStore';
+import {REGISTER} from '@/store/features/authSlice';
+
+const initialValues = {
+  email: 'eve.holt@reqres.in',
+  password: 'cityslicka%',
+};
 
 const Register = () => {
-  const initialValues = {
-    firstName: '',
-    lastName: '',
-    nickName: '',
-    countryCode: '+234',
-    phoneNumber: '',
+  const navigation = useNavigation();
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const dispatch = useAppDispatch();
+
+  const handleRegister = async ({email, password}: FormikValues) => {
+    try {
+      const {payload}: any = await dispatch(REGISTER({email, password}));
+
+      if (payload?.id) {
+        navigation.navigate('CreateUser');
+      } else {
+        return setErrorMsg(payload?.error);
+      }
+    } catch (error) {
+      console.error('Signup failed:', error);
+    }
   };
 
   return (
-    <Formik initialValues={initialValues} onSubmit={() => {}}>
+    <Formik
+      enableReinitialize
+      initialValues={initialValues}
+      // validationSchema={SignupFormValidationSchema}
+      onSubmit={handleRegister}>
       {({
+        handleChange,
         errors,
         values,
         touched,
-        handleChange,
+        handleBlur,
+        setFieldTouched,
         handleSubmit,
-        setFieldValue,
-      }) => (
-        <Container style={styles.container}>
-          {/* <View> */}
-          <HeadingText
-            heading="Tell Us More About You"
-            subHeading="Please use your name as it appears on your ID."
-          />
-          <CustomInput
-            placeholder="Legal first name"
-            value={values.firstName}
-            label={'first name'}
-          />
-          <CustomInput
-            placeholder="Legal last name"
-            value={values.lastName}
-            label={'last name'}
-          />
-          <CustomInput
-            placeholder="Nick name"
-            value={values.nickName}
-            label={'nick name'}
-          />
-          {/* </View> */}
-          <View>
-            <View style={styles.label}>
-              <Text style={styles.labelText}>Phone Number</Text>
-            </View>
-            <View style={styles.countryInputBox}>
-              <View style={styles.countryPicker}>
-                <FlagIcon />
-                <Text style={styles.countryCode}>{values.countryCode}</Text>
-                <Pressable>
-                  <ArrowDown />
-                </Pressable>
+        isSubmitting,
+      }) => {
+        return (
+          <Container style={styles.container}>
+            <View>
+              <HeadingText
+                heading="Login to your account"
+                subHeading="Welcome to FastMoni, enjoy seamless transaction on our platform."
+              />
+              <CustomInput
+                label="Email address"
+                value={values.email}
+                placeholder="Email address"
+                onChangeText={handleChange('email')}
+                onFocus={() => setFieldTouched('email')}
+                onBlur={handleBlur('email')}
+                error={touched.email && errors.email ? errors.email : undefined}
+              />
+              {errorMsg && <Text style={{color: 'red'}}>{errorMsg}</Text>}
+              <View>
+                <CustomInput
+                  label="Password"
+                  value={values.password}
+                  placeholder="Password"
+                  isPassword
+                  onChangeText={handleChange('password')}
+                  onFocus={() => setFieldTouched('password')}
+                  error={
+                    touched.password && errors.password
+                      ? errors.password
+                      : undefined
+                  }
+                />
               </View>
-
-              <View />
-
-              <TextInput
-                placeholder="8030525323"
-                placeholderTextColor={COLORS.textColor}
-                style={styles.textInput}
-                keyboardType={'numeric'}
-                maxLength={11}
+              <CustomButton
+                title="Login"
+                disabled={
+                  !values.email ||
+                  !values.password ||
+                  !!errors.email ||
+                  !!errors.password
+                }
+                onPressButton={handleSubmit}
+                style={{marginTop: hp(50)}}
+                loading={isSubmitting}
+                variant={undefined}
               />
             </View>
-          </View>
-
-          <View style={[styles.countryInputBox, {marginTop: hp(20)}]}>
-            <Text style={styles.countryCode}>Choose date</Text>
-            <Pressable>
-              <CalenderIcon />
-            </Pressable>
-          </View>
-          <CustomButton title="Continue" style={styles.continueButton} />
-          <Text style={styles.termsConditionText}>
-            By clicking Continue, you agree to our {'\n'}{' '}
-            <Text style={styles.serviceLink}>Terms of Service</Text> and{' '}
-            <Text style={styles.serviceLink}>Privacy Policy.</Text>
-          </Text>
-        </Container>
-      )}
+          </Container>
+        );
+      }}
     </Formik>
   );
 };
@@ -102,66 +112,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(20),
     paddingVertical: hp(30),
   },
-  countryInputBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
+  headingText: {
+    fontWeight: '500',
+    fontSize: 20,
+    color: COLORS.textColor,
+  },
+  subHeading: {
+    color: COLORS.neutral,
+    marginVertical: hp(20),
+    fontSize: 15,
+  },
+  checkBox: {
+    width: wp(16),
+    height: hp(16),
+    borderRadius: 8,
     borderWidth: 1,
-    borderRadius: 5,
-    borderColor: '#E1E8ED',
-    padding: 10,
-    marginTop: hp(10),
-    height: hp(55),
-    justifyContent: 'space-between',
-  },
-  countryPicker: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '35%',
-    justifyContent: 'space-between',
-  },
-  textInput: {
-    borderLeftWidth: 1,
-    height: '100%',
-    borderColor: COLORS.grey,
-    marginLeft: wp(5),
-    width: '65%',
-    padding: 10,
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.textColor,
-  },
-  countryCode: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: COLORS.textColor,
-  },
-  termsConditionText: {
-    textAlign: 'center',
-    fontSize: 12,
-  },
-  serviceLink: {
-    color: COLORS.teal,
-  },
-  continueButton: {
-    marginTop: hp(20),
-    marginBottom: hp(30),
-  },
-  label: {
-    // backgroundColor: '#81AA66',
-    paddingHorizontal: 8,
-    height: 20,
-    borderRadius: 10,
+    borderColor: COLORS.teal,
+    backgroundColor: 'white',
+    marginRight: wp(10),
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    left: 13,
-    top: 0,
-    zIndex: 200,
   },
-  labelText: {
-    color: COLORS.teal,
-    fontSize: 12,
-    fontWeight: 'bold',
+  checkBoxView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: hp(10),
+  },
+  confirmBg: {
+    backgroundColor: COLORS.teal,
   },
 });

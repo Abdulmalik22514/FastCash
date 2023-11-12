@@ -1,38 +1,41 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, Text, View, TextInput} from 'react-native';
 import React, {useState} from 'react';
 import Container from '@/components/Container';
 import {hp, wp} from '@/constants/utils';
 import HeadingText from '@/components/HeadingText';
 import CustomInput from '@/components/CustomInput';
 import {Formik, FormikValues} from 'formik';
+import {ArrowDown, CalenderIcon, FlagIcon} from '@/assets/svgs/svg';
 import {COLORS} from '@/constants/colors';
 import {CustomButton} from '@/components/CustomButton';
-import useNavigation from '@/hooks/useNavigation';
-import {LOGIN} from '@/store/features/authSlice';
 import {useAppDispatch, useAppSelector} from '@/hooks/useStore';
+import useNavigation from '@/hooks/useNavigation';
+import {CREATE_USER} from '@/store/features/authSlice';
+// import {TextInput} from 'react-native-paper';
 
 const initialValues = {
-  email: 'eve.holt@reqres.in',
-  password: 'cityslicka%',
+  name: '',
+  lastName: '',
+  job: '',
 };
 
-const Login = () => {
+const CreateUser = () => {
   const navigation = useNavigation();
   const dispatch = useAppDispatch();
   const {token} = useAppSelector(state => state.authReducer);
   const [errorMsg, setErrorMsg] = useState('');
 
-  console.log(token);
-
-  const handleLogin = async ({email, password}: FormikValues) => {
+  const handleCreate = async ({name, job}: FormikValues) => {
+    if (!name || !job) {
+      return setErrorMsg('Fill in required fields');
+    }
     if (token) {
       try {
-        const {payload}: any = await dispatch(LOGIN({email, password}));
-        console.log(payload, 'jjj');
+        const {payload}: any = await dispatch(CREATE_USER({name, job}));
 
-        if (payload?.token) {
-          navigation.navigate('CreateUser');
+        if (payload) {
+          navigation.navigate('Home');
         } else {
           return setErrorMsg(payload?.error);
         }
@@ -43,57 +46,51 @@ const Login = () => {
   };
 
   return (
-    <Formik
-      enableReinitialize
-      initialValues={initialValues}
-      onSubmit={handleLogin}>
+    <Formik initialValues={initialValues} onSubmit={handleCreate}>
       {({
         errors,
         values,
         touched,
         handleChange,
-        handleBlur,
         handleSubmit,
-        setFieldValue,
+        handleBlur,
         isSubmitting,
-        setFieldTouched,
       }) => (
         <Container style={styles.container}>
           {/* <View> */}
-          <Text onPress={() => navigation.goBack()} style={styles.backText}>
-            Back
-          </Text>
           <HeadingText
             heading="Tell Us More About You"
-            subHeading="Login with your registered email"
+            subHeading="Please use your name as it appears on your ID."
           />
           <CustomInput
-            label="Email address"
-            value={values.email}
-            placeholder="Email address"
-            onChangeText={handleChange('email')}
-            onFocus={() => setFieldTouched('email')}
-            onBlur={handleBlur('email')}
-            error={touched.email && errors.email ? errors.email : undefined}
+            placeholder="Legal first name"
+            value={values.name}
+            label={'first name'}
+            onChangeText={handleChange('name')}
+            onBlur={() => {
+              if (values.name) {
+                setErrorMsg('');
+              }
+            }}
           />
           {errorMsg && <Text style={{color: 'red'}}>{errorMsg}</Text>}
-          <View>
-            <CustomInput
-              label="Password"
-              value={values.password}
-              placeholder="Password"
-              isPassword
-              onChangeText={handleChange('password')}
-              onFocus={() => setFieldTouched('password')}
-              error={
-                touched.password && errors.password
-                  ? errors.password
-                  : undefined
-              }
-            />
-          </View>
+
+          <CustomInput
+            placeholder="Legal last name"
+            value={values.lastName}
+            label={'last name'}
+            onChangeText={handleChange('lastName')}
+          />
+          <CustomInput
+            placeholder="job"
+            value={values.job}
+            label={'job'}
+            onChangeText={handleChange('job')}
+          />
+          {errorMsg && <Text style={{color: 'red'}}>{errorMsg}</Text>}
+
           <CustomButton
-            title="Login"
+            title="Continue"
             style={styles.continueButton}
             onPressButton={handleSubmit}
             loading={isSubmitting}
@@ -109,40 +106,22 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default CreateUser;
 
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: wp(20),
     paddingVertical: hp(30),
   },
-  countryInputBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: '#E1E8ED',
-    padding: 10,
-    marginTop: hp(10),
-    height: hp(55),
-    justifyContent: 'space-between',
-  },
-  countryPicker: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '35%',
-    justifyContent: 'space-between',
-  },
+
   textInput: {
     borderLeftWidth: 1,
     height: '100%',
     borderColor: COLORS.grey,
     marginLeft: wp(5),
     width: '65%',
-    paddingVertical: hp(5),
-    paddingHorizontal: wp(10),
-    fontSize: hp(16),
+    padding: 10,
+    fontSize: 16,
     fontWeight: '700',
     color: COLORS.textColor,
   },
@@ -178,9 +157,5 @@ const styles = StyleSheet.create({
     color: COLORS.teal,
     fontSize: 12,
     fontWeight: 'bold',
-  },
-  backText: {
-    color: COLORS.teal,
-    marginBottom: hp(20),
   },
 });

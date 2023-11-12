@@ -11,10 +11,12 @@ import {
 interface HomeContextState {
   name: string;
   job: string;
+  id: string;
   setValue: Dispatch<
     SetStateAction<{
       name: string;
       job: string;
+      id: string;
     }>
   >;
 }
@@ -25,11 +27,13 @@ const HomeProvider = ({children}: PropsWithChildren) => {
   const [value, setValue] = useState({
     name: '',
     job: '',
+    id: '',
   });
 
   const values: HomeContextState = {
     name: value.name,
     job: value.job,
+    id: value.id,
     setValue,
   };
 
